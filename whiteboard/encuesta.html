@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnóstico Organizacional · Whiteboard Consultores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --c-black:   #0e0e0e;
+      --c-white:   #fafaf8;
+      --c-gray-50: #f5f5f2;
+      --c-gray-100:#ebebea;
+      --c-gray-200:#d4d4d2;
+      --c-gray-400:#9a9a98;
+      --c-gray-600:#5c5c5a;
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    html, body { height: 100%; font-family: var(--font-body); background: var(--c-gray-50); color: var(--c-black); -webkit-font-smoothing: antialiased; }
+
+    .app { display: flex; flex-direction: column; height: 100vh; max-width: 720px; margin: 0 auto; background: var(--c-white); border-left: 0.5px solid var(--c-gray-200); border-right: 0.5px solid var(--c-gray-200); }
+
+    /* Header */
+    .header { padding: 1rem 1.5rem; border-bottom: 0.5px solid var(--c-gray-200); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .header-logo { font-family: var(--font-display); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; }
+    .header-logo span { color: var(--c-gray-400); font-weight: 400; }
+    .progress-wrap { display: flex; align-items: center; gap: 10px; }
+    .progress-bar-bg { width: 120px; height: 3px; background: var(--c-gray-100); border-radius: 99px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--c-black); border-radius: 99px; transition: width 0.5s ease; width: 0%; }
+    .progress-label { font-size: 11px; color: var(--c-gray-400); font-weight: 500; min-width: 32px; text-align: right; }
+
+    /* Chat */
+    .chat-area { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth; }
+    .msg { display: flex; gap: 10px; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .msg.ai { align-items: flex-start; }
+    .msg.user { align-items: flex-start; flex-direction: row-reverse; }
+    .msg-avatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; flex-shrink:0; margin-top:2px; }
+    .msg.ai .msg-avatar { background: var(--c-black); color: var(--c-white); font-family: var(--font-display); }
+    .msg.user .msg-avatar { background: var(--c-gray-100); color: var(--c-gray-600); }
+    .msg-bubble { max-width:80%; padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.65; font-weight:300; }
+    .msg.ai .msg-bubble { background:var(--c-gray-50); border:0.5px solid var(--c-gray-200); border-top-left-radius:4px; }
+    .msg.user .msg-bubble { background:var(--c-black); color:var(--c-white); border-top-right-radius:4px; font-weight:400; }
+
+    /* Badge de ratificación */
+    .ratif-badge { display:inline-block; font-size:11px; font-weight:500; color:var(--c-gray-400); background:var(--c-gray-100); border-radius:99px; padding:3px 10px; margin-bottom:6px; }
+
+    /* Opciones */
+    .options-wrap { display:flex; flex-direction:column; gap:8px; margin-top:0.75rem; animation:fadeUp 0.3s ease 0.1s both; }
+    .opt-btn { font-family:var(--font-body); font-size:13px; font-weight:400; padding:10px 16px; background:var(--c-white); border:0.5px solid var(--c-gray-200); border-radius:10px; cursor:pointer; text-align:left; color:var(--c-black); transition:background var(--transition), border-color var(--transition); }
+    .opt-btn:hover { background:var(--c-gray-50); border-color:var(--c-gray-400); }
+    .opt-btn:disabled { opacity:0.45; cursor:not-allowed; }
+
+    /* Typing */
+    .typing { display:flex; align-items:center; gap:4px; padding:14px 16px; }
+    .typing span { width:6px; height:6px; background:var(--c-gray-400); border-radius:50%; animation:bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay:0.2s; }
+    .typing span:nth-child(3) { animation-delay:0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+    /* Input */
+    .input-area { padding:1rem 1.5rem; border-top:0.5px solid var(--c-gray-200); display:flex; gap:10px; align-items:flex-end; flex-shrink:0; }
+    textarea { width:100%; font-family:var(--font-body); font-size:14px; padding:11px 14px; background:var(--c-gray-50); border:0.5px solid var(--c-gray-200); border-radius:12px; color:var(--c-black); resize:none; outline:none; line-height:1.5; min-height:44px; max-height:120px; transition:border-color var(--transition); }
+    textarea:focus { border-color:var(--c-gray-600); background:var(--c-white); }
+    textarea::placeholder { color:var(--c-gray-400); }
+    textarea:disabled { opacity:0.4; cursor:not-allowed; }
+    .send-btn { width:40px; height:40px; background:var(--c-black); border:none; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:opacity var(--transition); }
+    .send-btn:hover { opacity:0.75; }
+    .send-btn:disabled { opacity:0.3; cursor:not-allowed; }
+    .send-btn svg { width:16px; height:16px; stroke:white; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+    /* Pantallas */
+    .screen { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:2rem; text-align:center; gap:1.5rem; }
+    .screen h1 { font-family:var(--font-display); font-size:22px; font-weight:600; letter-spacing:-0.02em; line-height:1.2; }
+    .screen p { font-size:14px; font-weight:300; color:var(--c-gray-600); line-height:1.75; max-width:420px; }
+    .screen-form { width:100%; max-width:380px; display:flex; flex-direction:column; gap:0.75rem; }
+    .screen-form input, .screen-form select { width:100%; font-family:var(--font-body); font-size:14px; padding:11px 14px; background:var(--c-gray-50); border:0.5px solid var(--c-gray-200); border-radius:10px; color:var(--c-black); outline:none; transition:border-color var(--transition); }
+    .screen-form input:focus, .screen-form select:focus { border-color:var(--c-gray-600); background:var(--c-white); }
+    .screen-form input::placeholder { color:var(--c-gray-400); }
+    .btn-start { font-family:var(--font-body); font-size:14px; font-weight:500; padding:12px; background:var(--c-black); color:var(--c-white); border:none; border-radius:999px; cursor:pointer; transition:opacity var(--transition); margin-top:0.25rem; }
+    .btn-start:hover { opacity:0.82; }
+    .btn-start:disabled { opacity:0.4; cursor:not-allowed; }
+    .icon-circle { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .error-banner { background:#fdecea; border:0.5px solid #f5c6c6; border-radius:10px; padding:10px 14px; font-size:13px; color:#c0392b; display:none; }
+    .info-banner { background:var(--c-gray-50); border:0.5px solid var(--c-gray-200); border-radius:10px; padding:10px 14px; font-size:13px; color:var(--c-gray-600); }
+
+    /* Toast de reconexión */
+    .toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%) translateY(20px); background:var(--c-black); color:var(--c-white); font-size:13px; padding:10px 20px; border-radius:999px; opacity:0; transition:opacity 0.2s ease, transform 0.2s ease; pointer-events:none; white-space:nowrap; z-index:999; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    @media(max-width:500px) { .app{border:none} .header{padding:0.75rem 1rem} .chat-area{padding:1rem} .input-area{padding:0.75rem 1rem} }
+  </style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <div class="header">
+    <div class="header-logo">WB <span>Consultores</span></div>
+    <div class="progress-wrap" id="progress-wrap" style="display:none">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+      <span class="progress-label" id="progress-label">0%</span>
+    </div>
+  </div>
+
+  <!-- Pantalla: token inválido -->
+  <div class="screen" id="screen-invalido" style="display:none">
+    <div class="icon-circle" style="background:var(--c-gray-100)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-gray-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h1>Enlace no válido</h1>
+    <p>Este enlace no es válido o ya fue utilizado. Si cree que hay un error, comuníquese con su empresa para solicitar un nuevo enlace.</p>
+  </div>
+
+  <!-- Pantalla: ya completada -->
+  <div class="screen" id="screen-ya-completa" style="display:none">
+    <div class="icon-circle" style="background:var(--c-gray-100)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-gray-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Ya completaste este diagnóstico</h1>
+    <p>Sus respuestas ya fueron registradas. No es posible responder la misma encuesta dos veces. Gracias por su participación.</p>
+  </div>
+
+  <!-- Pantalla: inicio -->
+  <div class="screen" id="screen-inicio" style="display:none">
+    <div class="icon-circle" style="background:var(--c-gray-100)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-gray-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <h1>Diagnóstico organizacional</h1>
+    <p>Este es un espacio confidencial. Sus respuestas serán analizadas de forma agregada. No hay respuestas correctas ni incorrectas.</p>
+    <div class="screen-form">
+      <input type="text" id="input-nombre" placeholder="Nombre completo" />
+      <input type="text" id="input-depto" placeholder="Área o departamento (ej. Operaciones, Ventas)" />
+      <select id="input-nivel">
+        <option value="" disabled selected>Nivel jerárquico</option>
+        <option value="director">Director / Gerente General</option>
+        <option value="gerente">Gerente / Jefe de área</option>
+        <option value="coordinador">Coordinador / Supervisor</option>
+        <option value="operativo">Colaborador operativo</option>
+        <option value="otro">Otro</option>
+      </select>
+      <input type="text" id="input-puesto" placeholder="Puesto o cargo específico" />
+      <div class="error-banner" id="error-inicio">Por favor completa todos los campos.</div>
+      <button class="btn-start" id="btn-start" onclick="iniciarChat()">Comenzar diagnóstico</button>
+    </div>
+  </div>
+
+  <!-- Pantalla: retomar sesión -->
+  <div class="screen" id="screen-retomar" style="display:none">
+    <div class="icon-circle" style="background:var(--c-gray-100)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-gray-600)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+    </div>
+    <h1>¿Desea continuar donde lo dejó?</h1>
+    <p>Detectamos que comenzó este diagnóstico anteriormente. Puede retomar desde donde se quedó o iniciar desde el principio.</p>
+    <div class="screen-form">
+      <div class="info-banner" id="retomar-info"></div>
+      <button class="btn-start" onclick="retomarSesion()">Continuar donde me quedé</button>
+      <button onclick="reiniciarSesion()" style="font-family:var(--font-body);font-size:13px;color:var(--c-gray-600);background:none;border:none;cursor:pointer;padding:4px;">Empezar desde el principio</button>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-area" id="chat-area" style="display:none"></div>
+
+  <!-- Input -->
+  <div class="input-area" id="input-area" style="display:none">
+    <div style="flex:1">
+      <textarea id="user-input" placeholder="Escriba su respuesta..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    </div>
+    <button class="send-btn" id="send-btn" onclick="enviarRespuesta()">
+      <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+
+  <!-- Pantalla: fin -->
+  <div class="screen" id="screen-end" style="display:none">
+    <div class="icon-circle" style="background:var(--c-black)">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Diagnóstico completado</h1>
+    <p>Gracias por su tiempo y honestidad. Sus respuestas han sido registradas y serán analizadas para generar recomendaciones que beneficien a toda su organización.</p>
+    <p style="font-size:13px;color:var(--c-gray-400)">Puede cerrar esta ventana.</p>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ── Config ───────────────────────────────────────────────────
+const SUPABASE_URL = 'https://nzrlbmsrrqocmwvnrylr.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56cmxibXNycnFvY213dm5yeWxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MDc1OTYsImV4cCI6MjA5NjA4MzU5Nn0.jbazECApTvL4Uw0lf2P1w6NCiNrYOB6R1rFfOsXM1Uo';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const TOTAL = 35;
+let participante = {};
+let historial    = [];
+let preguntaNum  = 0;
+let encuestaId   = null;
+let bloqueado    = false;
+let token        = null;
+let apiKey       = null; // Se inyecta desde admin
+
+// ── Leer parámetros de la URL ────────────────────────────────
+const params = new URLSearchParams(window.location.search);
+token  = params.get('token');
+apiKey = params.get('key'); // La API key viaja encriptada en el link
+
+// ── Punto de entrada ─────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => validarToken());
+
+async function validarToken() {
+  if (!token) { mostrarPantalla('screen-invalido'); return; }
+
+  const { data, error } = await sb
+    .from('encuestas')
+    .select('*')
+    .eq('token', token)
+    .single();
+
+  if (error || !data) { mostrarPantalla('screen-invalido'); return; }
+
+  // Ya completada — no puede responder de nuevo
+  if (data.estado === 'completada') { mostrarPantalla('screen-ya-completa'); return; }
+
+  encuestaId = data.id;
+
+  // Tiene progreso guardado — ofrecer retomar
+  if (data.respuestas && data.respuestas.historial && data.respuestas.historial.length > 0) {
+    const prog = data.respuestas.historial.filter(m => m.role === 'user').length;
+    document.getElementById('retomar-info').textContent =
+      `Lleva ${prog} de ${TOTAL} preguntas respondidas.`;
+    // Guardar datos para retomar
+    window._sesionGuardada = data.respuestas;
+    mostrarPantalla('screen-retomar');
+    return;
+  }
+
+  mostrarPantalla('screen-inicio');
+}
+
+// ── Retomar sesión ───────────────────────────────────────────
+function retomarSesion() {
+  const sesion = window._sesionGuardada;
+  participante = sesion.participante;
+  historial    = sesion.historial;
+  preguntaNum  = historial.filter(m => m.role === 'user').length;
+
+  mostrarInterfazChat();
+
+  // Redibujar historial
+  historial.forEach(m => {
+    if (m.role === 'assistant') agregarMensajeIA(m.content, null, true);
+    else agregarMensajeUsuario(m.content, true);
+  });
+
+  showToast('Sesión retomada — continuando desde la pregunta ' + (preguntaNum + 1));
+  actualizarProgreso();
+  setTimeout(() => siguientePregunta(), 800);
+}
+
+function reiniciarSesion() {
+  window._sesionGuardada = null;
+  mostrarPantalla('screen-inicio');
+}
+
+// ── Iniciar chat nuevo ───────────────────────────────────────
+async function iniciarChat() {
+  const nombre  = document.getElementById('input-nombre').value.trim();
+  const area    = document.getElementById('input-depto').value.trim();
+  const nivel   = document.getElementById('input-nivel').value;
+  const puesto  = document.getElementById('input-puesto').value.trim();
+  const errEl   = document.getElementById('error-inicio');
+  const btnEl   = document.getElementById('btn-start');
+
+  if (!nombre || !area || !nivel || !puesto) {
+    errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+  btnEl.disabled = true;
+  btnEl.textContent = 'Iniciando...';
+
+  participante = { nombre, area, nivel, puesto };
+
+  // Guardar participante en Supabase (estado: en_curso)
+  const { error } = await sb.from('encuestas').update({
+    participante: nombre,
+    rol:          puesto,
+    nivel:        nivel,
+    estado:       'en_curso',
+    respuestas:   { participante, historial: [], completado_en: null }
+  }).eq('token', token);
+
+  if (error) { console.error(error); }
+
+  mostrarInterfazChat();
+
+  const saludo = `Buenos días, ${nombre}. Mi nombre es Alba y voy a acompañarle durante este diagnóstico.\n\nEstamos aquí para escucharle con atención. Todo lo que comparta es confidencial — nadie en su empresa verá sus respuestas de manera individual.\n\nComencemos cuando esté listo.`;
+  agregarMensajeIA(saludo);
+  historial.push({ role: 'assistant', content: saludo });
+
+  setTimeout(() => siguientePregunta(), 1000);
+}
+
+// ── Mostrar interfaz de chat ─────────────────────────────────
+function mostrarInterfazChat() {
+  ocultarTodas();
+  document.getElementById('chat-area').style.display     = 'flex';
+  document.getElementById('input-area').style.display    = 'flex';
+  document.getElementById('progress-wrap').style.display = 'flex';
+}
+
+// ── Siguiente pregunta (IA) ──────────────────────────────────
+async function siguientePregunta() {
+  if (preguntaNum >= TOTAL) { await finalizarEncuesta(); return; }
+
+  bloqueado = true;
+  bloquearInput(true);
+  mostrarTyping();
+
+  const systemPrompt = `Eres Alba, consultora senior de Whiteboard Consultores con formación en psicología organizacional, negociación y análisis de riesgos humanos. Conduces una entrevista de diagnóstico profundo con ${participante.nombre}, ${participante.puesto} del área de ${participante.area} (nivel jerárquico: ${participante.nivel}).
+
+MISIÓN: Extraer información auténtica y sin filtros sobre la salud real de la organización. Las personas raramente dicen la verdad completa cuando se les pregunta directamente — tu trabajo es obtenerla de forma indirecta, proyectiva y empática.
+
+TÉCNICA CENTRAL: PREGUNTAS PROYECTIVAS
+Usa proyecciones que bajen la guardia. Ejemplos por dimensión:
+
+LIDERAZGO:
+- "Si un amigo cercano entrara mañana a trabajar contigo, ¿qué le recomendarías para adaptarse al estilo de tu jefe?"
+- "Si tuvieras que describir el liderazgo de tu empresa como un personaje de película, ¿cuál sería y por qué?"
+- "¿Qué decisión reciente de la dirección te generó más dudas o preguntas?"
+
+CULTURA Y VALORES:
+- "Si tu empresa fuera una persona, ¿cómo la describirías en tres palabras? ¿Y cómo crees que ella te describiría a ti?"
+- "¿Hay alguna regla no escrita que todo el mundo conoce pero nadie menciona en las juntas?"
+- "¿Qué te sorprendió más — para bien o para mal — cuando llevas tiempo aquí?"
+
+COMUNICACIÓN:
+- "Cuando hay un problema importante, ¿cómo se entera la gente: por comunicado oficial, de pasillo, o por rumor?"
+- "¿Hay temas que sientes que no se pueden decir abiertamente? ¿Por qué crees que es así?"
+- "Si pudieras mandar un mensaje anónimo a la dirección que supiera que lo leerían, ¿qué dirías?"
+
+CARGA Y BIENESTAR (burnout):
+- "Imagina que te vas dos semanas de vacaciones. ¿Qué pasa con tu trabajo mientras no estás?"
+- "¿Cuándo fue la última vez que saliste del trabajo sintiéndote con energía? ¿Qué pasó ese día?"
+- "¿Hay momentos en los que sientes que das más de lo que puedes sostener por mucho tiempo?"
+
+OPERACIÓN:
+- "Si tuvieras que explicar por qué a veces las cosas tardan más de lo que deberían, ¿qué dirías?"
+- "¿Cuál es el camino alternativo que tú o tu equipo usan porque el proceso oficial no funciona?"
+
+MOTIVACIÓN:
+- "¿Qué fue lo último que hiciste que te hizo sentir que valió la pena el esfuerzo?"
+- "Si mañana te ofrecieran el mismo puesto con el mismo sueldo en otra empresa, ¿qué te haría quedarte? ¿Qué te haría irte?"
+
+CLIMA INTERPERSONAL Y DETECCIÓN DE ACOSO:
+- "¿Hay alguien cuya presencia cambia el ambiente cuando llega? ¿Cómo lo cambia?"
+- "¿Alguna vez has presenciado o vivido situaciones en las que alguien fue tratado de forma injusta o irrespetuosa?"
+- "¿Hay momentos en los que sientes que debes cuidar mucho lo que dices frente a alguna persona?"
+
+DETECCIÓN DE ACOSO: Señales de alerta en respuestas: miedo/vergüenza/humillación, aislamiento forzado, trato diferenciado, incomodidad persistente con una persona, respuestas evasivas inusuales. Si detectas 2+ señales, profundiza con: "Lo que describe merece atención. ¿Estaría dispuesto a contarme un poco más? Todo aquí es completamente confidencial." Si confirma situación grave, añade al final: [ALERTA-ACOSO]
+
+REGLAS:
+- Llevas ${preguntaNum} preguntas de ${TOTAL}. Primeras 10: exploración amplia con proyectivas. 11-25: profundiza en lo revelado. Últimas 10: cierra dimensiones pendientes.
+- USA PREFERENTEMENTE preguntas proyectivas. Directas solo después de pregunta 15.
+- Alterna abiertas y con opciones. Opciones: [OPCIONES: op1 | op2 | op3 | op4]
+- Una sola pregunta por turno.
+- RATIFICACIÓN: Si respuesta ambigua o muy corta: [RATIFICA: "lo que entendiste"] antes de continuar.
+- Si detectas burnout severo, desmotivación grave o acoso, profundiza con empatía.
+- Español formal y neutro. Cálido pero profesional.
+- Nunca menciones "las 7 dimensiones", "el diagnóstico" ni "Whiteboard" en la conversación.
+- RESPONDE SOLO con el mensaje para el participante. Nada más.`;
+
+  const ultimas = historial.slice(-10);
+
+  try {
+    // Llamada al proxy seguro de Netlify (la API Key nunca sale del servidor)
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model:      'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system:     systemPrompt,
+        messages: [{ role: 'user', content: `Historial reciente:\n${ultimas.map(m => `${m.role === 'assistant' ? 'Alba' : participante.nombre}: ${m.content}`).join('\n\n')}\n\nGenera el siguiente turno del diagnóstico.` }]
+      })
+    });
+
+    const data  = await res.json();
+    const texto = data.content?.[0]?.text || '';
+
+    quitarTyping();
+    procesarRespuestaIA(texto);
+    preguntaNum++;
+    actualizarProgreso();
+    await guardarProgreso();
+
+  } catch (err) {
+    quitarTyping();
+    agregarMensajeIA('Disculpe, hubo un problema de conexión. Sus respuestas están guardadas — puede cerrar y retomar en cualquier momento.');
+    bloquearInput(false);
+  }
+
+  bloqueado = false;
+  bloquearInput(false);
+}
+
+// ── Procesar respuesta IA ────────────────────────────────────
+function procesarRespuestaIA(texto) {
+  // Detectar ratificación
+  const ratifMatch = texto.match(/\[RATIFICA:\s*"(.+?)"\]/);
+  const opcsMatch  = texto.match(/\[OPCIONES:\s*(.+?)\]/);
+
+  let textoLimpio = texto
+    .replace(/\[RATIFICA:.+?\]/g, '')
+    .replace(/\[OPCIONES:.+?\]/g, '')
+    .trim();
+
+  const opciones = opcsMatch ? opcsMatch[1].split('|').map(o => o.trim()) : null;
+  const ratifica = ratifMatch ? ratifMatch[1] : null;
+
+  agregarMensajeIA(textoLimpio, opciones, false, ratifica);
+  historial.push({ role: 'assistant', content: texto });
+}
+
+// ── Enviar respuesta usuario ─────────────────────────────────
+async function enviarRespuesta(override) {
+  if (bloqueado) return;
+  const inputEl = document.getElementById('user-input');
+  const texto   = override || inputEl.value.trim();
+  if (!texto) return;
+
+  inputEl.value = '';
+  autoResize(inputEl);
+
+  agregarMensajeUsuario(texto);
+  historial.push({ role: 'user', content: texto });
+
+  await siguientePregunta();
+}
+
+// ── Guardar progreso en Supabase ─────────────────────────────
+async function guardarProgreso() {
+  try {
+    await sb.from('encuestas').update({
+      respuestas: { participante, historial, guardado_en: new Date().toISOString() }
+    }).eq('token', token);
+  } catch(e) { console.warn('No se pudo guardar progreso:', e); }
+}
+
+// ── UI: agregar mensaje IA ───────────────────────────────────
+function agregarMensajeIA(texto, opciones, silencioso, ratifica) {
+  const chat = document.getElementById('chat-area');
+  const div  = document.createElement('div');
+  div.className = 'msg ai';
+
+  let inner = `<div class="msg-avatar">WB</div><div>`;
+
+  if (ratifica) {
+    inner += `<div class="ratif-badge">Entiendo que quiso decir:</div>
+              <div class="msg-bubble" style="margin-bottom:6px;font-style:italic;color:var(--c-gray-600)">"${ratifica}"</div>`;
+  }
+
+  inner += `<div class="msg-bubble">${texto.replace(/\n/g, '<br>')}</div>`;
+
+  if (opciones) {
+    inner += `<div class="options-wrap">${opciones.map(o =>
+      `<button class="opt-btn" onclick="elegirOpcion(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`
+    ).join('')}</div>`;
+  }
+
+  inner += `</div>`;
+  div.innerHTML = inner;
+  chat.appendChild(div);
+  if (!silencioso) scrollChat();
+}
+
+function agregarMensajeUsuario(texto, silencioso) {
+  const chat     = document.getElementById('chat-area');
+  const iniciales = participante.nombre
+    ? participante.nombre.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()
+    : 'YO';
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `<div class="msg-avatar">${iniciales}</div><div class="msg-bubble">${texto.replace(/\n/g,'<br>')}</div>`;
+  chat.appendChild(div);
+  if (!silencioso) scrollChat();
+}
+
+function elegirOpcion(btn, valor) {
+  btn.closest('.options-wrap').querySelectorAll('.opt-btn').forEach(b => {
+    b.disabled = true; b.style.opacity = '0.45';
+  });
+  btn.style.opacity = '1';
+  btn.style.background = 'var(--c-gray-100)';
+  btn.style.borderColor = 'var(--c-gray-600)';
+  enviarRespuesta(valor);
+}
+
+// ── Typing indicator ─────────────────────────────────────────
+function mostrarTyping() {
+  const chat = document.getElementById('chat-area');
+  const el   = document.createElement('div');
+  el.id        = 'typing-ind';
+  el.className = 'msg ai';
+  el.innerHTML = `<div class="msg-avatar">WB</div><div class="msg-bubble typing"><span></span><span></span><span></span></div>`;
+  chat.appendChild(el);
+  scrollChat();
+}
+function quitarTyping() {
+  const el = document.getElementById('typing-ind');
+  if (el) el.remove();
+}
+
+function bloquearInput(v) {
+  document.getElementById('user-input').disabled = v;
+  document.getElementById('send-btn').disabled   = v;
+  if (!v) document.getElementById('user-input').focus();
+}
+
+// ── Progreso ─────────────────────────────────────────────────
+function actualizarProgreso() {
+  const pct = Math.min(Math.round((preguntaNum / TOTAL) * 100), 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = pct + '%';
+}
+
+// ── Finalizar ────────────────────────────────────────────────
+async function finalizarEncuesta() {
+  bloqueado = true;
+  bloquearInput(true);
+
+  agregarMensajeIA('Hemos llegado al final del diagnóstico.\n\nMuchas gracias por su tiempo y por la confianza que depositó en este proceso. Sus respuestas serán analizadas junto con las de sus compañeros para generar recomendaciones que beneficien a toda la organización.\n\nQue tenga un excelente día.');
+
+  await sb.from('encuestas').update({
+    estado:    'completada',
+    respuestas: {
+      participante,
+      historial,
+      completado_en: new Date().toISOString()
+    }
+  }).eq('token', token);
+
+  setTimeout(() => {
+    ocultarTodas();
+    document.getElementById('progress-wrap').style.display = 'none';
+    mostrarPantalla('screen-end');
+  }, 3500);
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function mostrarPantalla(id) {
+  ocultarTodas();
+  document.getElementById(id).style.display = 'flex';
+}
+function ocultarTodas() {
+  ['screen-invalido','screen-ya-completa','screen-inicio','screen-retomar',
+   'chat-area','input-area','screen-end'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+function scrollChat() {
+  const c = document.getElementById('chat-area');
+  setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
+}
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); enviarRespuesta(); }
+}
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

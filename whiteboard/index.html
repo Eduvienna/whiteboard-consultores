@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whiteboard Consultores · Consultoría estratégica para PYMEs</title>
+  <meta name="description" content="Acompañamos a directores y líderes a descubrir lo que sus números no muestran — y construimos una ruta de transformación compartida que eleva resultados sin sacrificar a las personas." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --c-black:   #0e0e0e;
+      --c-white:   #fafaf8;
+      --c-gray-50: #f5f5f2;
+      --c-gray-100:#ebebea;
+      --c-gray-200:#d4d4d2;
+      --c-gray-400:#9a9a98;
+      --c-gray-600:#5c5c5a;
+      --c-gray-800:#2a2a28;
+      --c-accent:  #1a1a1a;
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--c-white);
+      color: var(--c-black);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ─── Typography helpers ──────────────────────────────── */
+    .t-display { font-family: var(--font-display); }
+    .t-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--c-gray-400);
+    }
+
+    /* ─── Nav ─────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2.5rem;
+      background: rgba(250, 250, 248, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 0.5px solid var(--c-gray-200);
+      transition: background var(--transition);
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      text-decoration: none;
+    }
+    .nav-logo-main {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--c-black);
+      line-height: 1;
+    }
+    .nav-logo-full {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--c-gray-400);
+      line-height: 1;
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+    .nav-link {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--c-gray-600);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .nav-link:hover { color: var(--c-black); }
+
+    .nav-btn {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 18px;
+      background: transparent;
+      color: var(--c-black);
+      border: 0.5px solid var(--c-gray-400);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .nav-btn:hover {
+      background: var(--c-gray-100);
+      border-color: var(--c-gray-600);
+    }
+
+    /* ─── Sections wrapper ────────────────────────────────── */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 2.5rem;
+    }
+
+    /* ─── Hero ────────────────────────────────────────────── */
+    .hero {
+      padding: 160px 2.5rem 110px;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--c-gray-400);
+      margin-bottom: 2rem;
+      padding: 5px 14px;
+      border: 0.5px solid var(--c-gray-200);
+      border-radius: var(--radius-pill);
+    }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(36px, 6vw, 62px);
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.75rem;
+      color: var(--c-black);
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--c-gray-400);
+    }
+
+    .hero-blockquote {
+      display: inline-block;
+      text-align: left;
+      font-size: 15px;
+      font-style: italic;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--c-gray-600);
+      border-left: 2px solid var(--c-gray-200);
+      padding-left: 1.25rem;
+      margin: 0 auto 1.75rem;
+      max-width: 560px;
+    }
+
+    .hero-sub {
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--c-gray-600);
+      max-width: 520px;
+      margin: 0 auto 2.75rem;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      padding: 13px 28px;
+      background: var(--c-black);
+      color: var(--c-white);
+      border: none;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity var(--transition), transform var(--transition);
+      display: inline-block;
+    }
+    .btn-primary:hover { opacity: 0.82; transform: translateY(-1px); }
+
+    .btn-ghost {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 400;
+      padding: 13px 28px;
+      background: transparent;
+      color: var(--c-black);
+      border: 0.5px solid var(--c-gray-400);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background var(--transition), border-color var(--transition);
+      display: inline-block;
+    }
+    .btn-ghost:hover {
+      background: var(--c-gray-100);
+      border-color: var(--c-gray-600);
+    }
+
+    /* ─── Divider ─────────────────────────────────────────── */
+    .divider {
+      height: 0.5px;
+      background: var(--c-gray-200);
+    }
+
+    /* ─── Section base ────────────────────────────────────── */
+    .section { padding: 90px 0; }
+
+    .section-head { margin-bottom: 3rem; }
+    .section-head .t-label { margin-bottom: 1rem; display: block; }
+    .section-head h2 {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.5vw, 36px);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+    .section-head p {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--c-gray-600);
+      line-height: 1.75;
+      max-width: 460px;
+    }
+
+    /* ─── Mission block ───────────────────────────────────── */
+    .mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5px;
+      background: var(--c-gray-200);
+      border: 0.5px solid var(--c-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-top: 2.5rem;
+    }
+    .mission-card {
+      background: var(--c-white);
+      padding: 2rem 2rem;
+    }
+    .mission-card strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+      color: var(--c-black);
+    }
+    .mission-card p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--c-gray-600);
+      line-height: 1.75;
+    }
+
+    /* ─── Services ────────────────────────────────────────── */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 0.5px;
+      background: var(--c-gray-200);
+      border: 0.5px solid var(--c-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .service-card {
+      background: var(--c-white);
+      padding: 2.25rem 2rem;
+      transition: background var(--transition);
+    }
+    .service-card:hover { background: var(--c-gray-50); }
+
+    .service-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--c-gray-100);
+      border-radius: var(--radius-sm);
+      margin-bottom: 1.25rem;
+    }
+    .service-icon svg { width: 18px; height: 18px; stroke: var(--c-gray-600); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .service-card h3 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+    .service-card p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--c-gray-600);
+      line-height: 1.72;
+    }
+
+    /* ─── Process ─────────────────────────────────────────── */
+    .process-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 2.5rem;
+      counter-reset: steps;
+    }
+    .process-step { counter-increment: steps; }
+    .process-num {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--c-gray-400);
+      margin-bottom: 0.75rem;
+    }
+    .process-num::before { content: counter(steps, decimal-leading-zero); }
+    .process-step h3 {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 0.45rem;
+      letter-spacing: -0.01em;
+    }
+    .process-step p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--c-gray-600);
+      line-height: 1.68;
+    }
+
+    /* ─── Why ─────────────────────────────────────────────── */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1px;
+      background: var(--c-gray-200);
+      border: 0.5px solid var(--c-gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .why-card {
+      background: var(--c-white);
+      padding: 1.75rem 1.75rem;
+    }
+    .why-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--c-gray-400);
+      margin-bottom: 0.6rem;
+    }
+    .why-card p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--c-gray-600);
+      line-height: 1.7;
+    }
+
+    /* ─── CTA Band ────────────────────────────────────────── */
+    .cta-band {
+      background: var(--c-gray-50);
+      border-top: 0.5px solid var(--c-gray-200);
+      border-bottom: 0.5px solid var(--c-gray-200);
+      padding: 90px 2.5rem;
+      text-align: center;
+    }
+    .cta-band h2 {
+      font-family: var(--font-display);
+      font-size: clamp(22px, 3.2vw, 34px);
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .cta-band p {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--c-gray-600);
+      line-height: 1.75;
+      max-width: 460px;
+      margin: 0 auto 2.25rem;
+    }
+
+    /* ─── Footer ──────────────────────────────────────────── */
+    .footer {
+      padding: 2.25rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: var(--c-gray-400);
+    }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      font-size: 12px;
+      color: var(--c-gray-400);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .footer-links a:hover { color: var(--c-black); }
+
+    /* ─── Animations ──────────────────────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Responsive ──────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .nav { padding: 0 1.25rem; }
+      .hero { padding: 130px 1.25rem 80px; }
+      .container { padding: 0 1.25rem; }
+      .section { padding: 70px 0; }
+      .mission-grid { grid-template-columns: 1fr; }
+      .cta-band { padding: 70px 1.25rem; }
+      .footer { padding: 2rem 1.25rem; }
+      .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ─────────────────────────────────────────────── -->
+  <nav class="nav">
+    <a href="#" class="nav-logo">
+      <span class="nav-logo-main">WB Consultores</span>
+      <span class="nav-logo-full">Whiteboard Consultores</span>
+    </a>
+    <div class="nav-right">
+      <a href="#servicios" class="nav-link">Servicios</a>
+      <a href="#proceso" class="nav-link">Proceso</a>
+      <a href="login.html" class="nav-btn">Acceso</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ────────────────────────────────────────────── -->
+  <section class="hero">
+    <span class="hero-tag">Consultoría estratégica · PYMEs mexicanas</span>
+    <h1 class="t-display">
+      Las respuestas que necesitas<br>ya existen <em>dentro de tu empresa.</em>
+    </h1>
+    <blockquote class="hero-blockquote">
+      "El 70% de los problemas operativos de una organización ya viven en las respuestas de su equipo. Nadie les ha preguntado bien."
+    </blockquote>
+    <p class="hero-sub">
+      Acompañamos a directores y líderes a descubrir lo que sus números no muestran — y construimos una ruta de transformación compartida que eleva resultados sin sacrificar a las personas.
+    </p>
+    <div class="cta-group">
+      <a href="#contacto" class="btn-primary">Descubrir qué frena mi empresa</a>
+      <a href="#proceso" class="btn-ghost">¿Cómo funciona?</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── Misión ───────────────────────────────────────────── -->
+  <div class="container">
+    <section class="section fade-up">
+      <div class="section-head">
+        <span class="t-label">Misión y visión</span>
+        <h2>Cambiar al mundo con<br>acciones de impacto real.</h2>
+        <p>Acompañamos a las PYMEs a convertirse en agentes de impacto socioeconómico — organizaciones de primer nivel que alcanzan sus objetivos sin perder su esencia ni a su gente.</p>
+      </div>
+      <div class="mission-grid">
+        <div class="mission-card">
+          <strong>El problema que nadie nombra</strong>
+          <p>La mayoría de las PYMEs no fracasan por falta de talento ni de esfuerzo. Fracasan porque nadie ha trazado con claridad dónde está el freno — ni ha tenido la conversación correcta con quienes lo conocen de primera mano.</p>
+        </div>
+        <div class="mission-card">
+          <strong>Nuestra convicción</strong>
+          <p>Una empresa sana financieramente y un equipo que trabaja bien no son objetivos opuestos. Son la misma meta, vista desde dos ángulos. Eso es lo que construimos contigo.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Servicios ────────────────────────────────────────── -->
+  <div class="container" id="servicios">
+    <section class="section fade-up">
+      <div class="section-head">
+        <span class="t-label">Servicios</span>
+        <h2>Tres líneas de trabajo.<br>Un solo objetivo.</h2>
+        <p>Cada empresa llega con un problema distinto. Nosotros llegamos con las preguntas correctas.</p>
+      </div>
+      <div class="services-grid">
+
+        <div class="service-card">
+          <div class="service-icon">
+            <!-- Radar icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2"/><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6a6 6 0 1 0 6 6"/></svg>
+          </div>
+          <h3>Diagnóstico organizacional</h3>
+          <p>Un proceso conversacional guiado por IA que revela el estado real de tu organización — desde la dirección hasta el equipo operativo — con datos que puedes usar para tomar decisiones.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <!-- Route icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17h4l2-8h6l2 8h4"/><path d="M9 9V7a3 3 0 0 1 6 0v2"/></svg>
+          </div>
+          <h3>Estrategia y operación</h3>
+          <p>Traducimos los hallazgos en KPIs claros, objetivos medibles y una ruta de transformación compartida diseñada para tu realidad, no para una empresa genérica.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">
+            <!-- Plant icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22V12"/><path d="M12 12C12 7 7 4 3 6c4 0 7 3 9 6"/><path d="M12 12c0-5 5-8 9-6-4 0-7 3-9 6"/></svg>
+          </div>
+          <h3>Cultura y desarrollo</h3>
+          <p>Acompañamiento continuo para construir entornos donde las personas rindan mejor porque se sienten valoradas. El bienestar del equipo es también una ventaja competitiva.</p>
+        </div>
+
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Proceso ───────────────────────────────────────────── -->
+  <div class="container" id="proceso">
+    <section class="section fade-up">
+      <div class="section-head">
+        <span class="t-label">Proceso</span>
+        <h2>De la conversación<br>al plan de acción.</h2>
+        <p>Cuatro pasos que van de entender tu empresa a entregarte un informe ejecutivo listo para actuar.</p>
+      </div>
+      <div class="process-grid">
+        <div class="process-step">
+          <p class="process-num"></p>
+          <h3>Sesión de contexto</h3>
+          <p>Escuchamos. Entendemos tu empresa, tu sector y los síntomas visibles antes de proponer cualquier camino.</p>
+        </div>
+        <div class="process-step">
+          <p class="process-num"></p>
+          <h3>Diagnóstico con IA</h3>
+          <p>Tu equipo responde una encuesta conversacional adaptativa. Cada persona recibe preguntas calibradas a su rol y nivel jerárquico.</p>
+        </div>
+        <div class="process-step">
+          <p class="process-num"></p>
+          <h3>Análisis de 7 dimensiones</h3>
+          <p>Procesamos las respuestas en un índice de salud organizacional real. Sin datos inventados, sin métricas vacías.</p>
+        </div>
+        <div class="process-step">
+          <p class="process-num"></p>
+          <h3>Informe ejecutivo</h3>
+          <p>Recibes un reporte visual con hallazgos, prioridades y una propuesta de acompañamiento estratégico a tu medida.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Por qué Whiteboard ───────────────────────────────── -->
+  <div class="container">
+    <section class="section fade-up">
+      <div class="section-head">
+        <span class="t-label">¿Por qué Whiteboard?</span>
+        <h2>Metodología de primer nivel.<br>Escala de PYME.</h2>
+        <p>Lo que antes solo estaba al alcance de las grandes corporaciones, ahora trabaja para las empresas que mueven a México.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card">
+          <p class="why-label">Marco diagnóstico</p>
+          <p>Basado en las 7 dimensiones del Organizational Health Index, adaptado al contexto y la cultura empresarial mexicana.</p>
+        </div>
+        <div class="why-card">
+          <p class="why-label">IA conversacional</p>
+          <p>No es una encuesta de opción múltiple. Es una conversación que se adapta en tiempo real y detecta lo que los formularios no ven.</p>
+        </div>
+        <div class="why-card">
+          <p class="why-label">Doble enfoque</p>
+          <p>Cada recomendación pondera el impacto financiero y la calidad de vida del equipo. Nunca uno a costa del otro.</p>
+        </div>
+        <div class="why-card">
+          <p class="why-label">Sin burocracia</p>
+          <p>Sin contratos eternos ni reportes de 200 páginas. Resultados claros, accionables y con la precisión de una consultora global.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ── CTA Band ──────────────────────────────────────────── -->
+  <div class="cta-band fade-up" id="contacto">
+    <h2>¿Sabes lo que está pasando<br>realmente en tu empresa?</h2>
+    <p>La mayoría de los líderes creen que sí. El diagnóstico casi siempre revela algo que nadie había dicho en voz alta. Empieza por ahí.</p>
+    <a href="mailto:eduvienna@icloud.com" class="btn-primary">Iniciar diagnóstico →</a>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── Footer ────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer">
+      <p class="footer-copy">© 2026 Whiteboard Consultores · Monterrey, México.</p>
+      <div class="footer-links">
+        <a href="#">Privacidad</a>
+        <a href="#">Contacto</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── Scroll animations ─────────────────────────────────── -->
+  <script>
+    // Fade-up on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
