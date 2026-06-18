@@ -21,12 +21,21 @@
       --font-body:    'DM Sans', sans-serif;
       --transition: 0.22s cubic-bezier(0.4,0,0.2,1);
     }
-    html, body { height: 100%; font-family: var(--font-body); background: var(--c-gray-50); color: var(--c-black); -webkit-font-smoothing: antialiased; }
+    html, body { height: 100%; font-family: var(--font-body); background: #f4f3f0; color: var(--c-black); -webkit-font-smoothing: antialiased; }
 
-    .app { display: flex; flex-direction: column; height: 100vh; max-width: 720px; margin: 0 auto; background: var(--c-white); border-left: 0.5px solid var(--c-gray-200); border-right: 0.5px solid var(--c-gray-200); }
+    .app { display: flex; flex-direction: column; height: 100vh; max-width: 720px; margin: 0 auto; background: #f4f3f0; border-left: 0.5px solid rgba(0,0,0,0.07); border-right: 0.5px solid rgba(0,0,0,0.07); position: relative; overflow: hidden; }
 
     /* Header */
-    .header { padding: 1rem 1.5rem; border-bottom: 0.5px solid var(--c-gray-200); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    /* ── Helechos animados ── */
+    .fern-layer{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+    .fern-shadow{position:absolute;transform-origin:50% 100%}
+    .fs1{bottom:-10px;right:-10px;animation:sway 10s ease-in-out infinite}
+    .fs2{bottom:-10px;right:50px;animation:sway 13s ease-in-out infinite;animation-delay:-4s}
+    .fs3{bottom:-10px;left:-20px;animation:sway 9s ease-in-out infinite;animation-delay:-6s;opacity:0.55}
+    .light-panel{position:absolute;top:0;left:0;width:55%;height:100%;background:linear-gradient(105deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0) 100%);pointer-events:none;z-index:1}
+    @keyframes sway{0%{transform:rotate(-3deg) translateX(0)}30%{transform:rotate(2.5deg) translateX(3px)}60%{transform:rotate(-1.5deg) translateX(-2px)}80%{transform:rotate(3deg) translateX(2px)}100%{transform:rotate(-3deg) translateX(0)}}
+
+    .header { padding:1rem 1.5rem; border-bottom:0.5px solid rgba(0,0,0,0.07); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; background:rgba(248,247,244,0.82); backdrop-filter:blur(14px); position:relative; z-index:3; }
     .header-logo { font-family: var(--font-display); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; }
     .header-logo span { color: var(--c-gray-400); font-weight: 400; }
     .progress-wrap { display: flex; align-items: center; gap: 10px; }
@@ -35,7 +44,7 @@
     .progress-label { font-size: 11px; color: var(--c-gray-400); font-weight: 500; min-width: 32px; text-align: right; }
 
     /* Chat */
-    .chat-area { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; scroll-behavior: smooth; }
+    .chat-area { flex:1; overflow-y:auto; padding:1.5rem; display:flex; flex-direction:column; gap:1rem; scroll-behavior:smooth; position:relative; z-index:2; }
     .msg { display: flex; gap: 10px; animation: fadeUp 0.3s ease; }
     @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
     .msg.ai { align-items: flex-start; }
@@ -44,15 +53,15 @@
     .msg.ai .msg-avatar { background: var(--c-black); color: var(--c-white); font-family: var(--font-display); }
     .msg.user .msg-avatar { background: var(--c-gray-100); color: var(--c-gray-600); }
     .msg-bubble { max-width:80%; padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.65; font-weight:300; }
-    .msg.ai .msg-bubble { background:var(--c-gray-50); border:0.5px solid var(--c-gray-200); border-top-left-radius:4px; }
-    .msg.user .msg-bubble { background:var(--c-black); color:var(--c-white); border-top-right-radius:4px; font-weight:400; }
+    .msg.ai .msg-bubble { background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); border:0.5px solid rgba(0,0,0,0.08); border-top-left-radius:4px; box-shadow:0 1px 12px rgba(0,0,0,0.05); }
+    .msg.user .msg-bubble { background:#3d5233; color:#f4f3f0; border-top-right-radius:4px; font-weight:400; }
 
     /* Badge de ratificación */
     .ratif-badge { display:inline-block; font-size:11px; font-weight:500; color:var(--c-gray-400); background:var(--c-gray-100); border-radius:99px; padding:3px 10px; margin-bottom:6px; }
 
     /* Opciones */
     .options-wrap { display:flex; flex-direction:column; gap:8px; margin-top:0.75rem; animation:fadeUp 0.3s ease 0.1s both; }
-    .opt-btn { font-family:var(--font-body); font-size:13px; font-weight:400; padding:10px 16px; background:var(--c-white); border:0.5px solid var(--c-gray-200); border-radius:10px; cursor:pointer; text-align:left; color:var(--c-black); transition:background var(--transition), border-color var(--transition); }
+    .opt-btn { font-family:var(--font-body); font-size:13px; font-weight:400; padding:10px 16px; background:rgba(255,255,255,0.85); border:0.5px solid rgba(0,0,0,0.1); border-radius:10px; cursor:pointer; text-align:left; color:#1c1c1a; transition:all 0.18s; }
     .opt-btn:hover { background:var(--c-gray-50); border-color:var(--c-gray-400); }
     .opt-btn:disabled { opacity:0.45; cursor:not-allowed; }
 
@@ -64,7 +73,7 @@
     @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
 
     /* Input */
-    .input-area { padding:1rem 1.5rem; border-top:0.5px solid var(--c-gray-200); display:flex; gap:10px; align-items:flex-end; flex-shrink:0; }
+    .input-area { padding:1rem 1.5rem; border-top:0.5px solid rgba(0,0,0,0.07); display:flex; gap:10px; align-items:flex-end; flex-shrink:0; background:rgba(248,247,244,0.82); backdrop-filter:blur(14px); position:relative; z-index:3; }
     textarea { width:100%; font-family:var(--font-body); font-size:14px; padding:11px 14px; background:var(--c-gray-50); border:0.5px solid var(--c-gray-200); border-radius:12px; color:var(--c-black); resize:none; outline:none; line-height:1.5; min-height:44px; max-height:120px; transition:border-color var(--transition); }
     textarea:focus { border-color:var(--c-gray-600); background:var(--c-white); }
     textarea::placeholder { color:var(--c-gray-400); }
@@ -98,6 +107,63 @@
 </head>
 <body>
 <div class="app" id="app">
+
+  <!-- Helechos animados -->
+  <div class="fern-layer">
+    <svg class="fern-shadow fs1" width="200" height="420" viewBox="0 0 200 420" fill="none" style="position:absolute;right:-10px;bottom:-5px">
+      <g opacity="0.22" stroke="#2a2a22" fill="none">
+        <path d="M110 420 Q108 360 104 290 Q100 220 94 150 Q88 90 78 30" stroke-width="2.2"/>
+        <path d="M108 370 Q88 355 62 360" stroke-width="1.4"/><path d="M88 362 Q80 352 70 356" stroke-width="0.8"/><path d="M80 358 Q74 348 66 352" stroke-width="0.8"/><path d="M72 355 Q68 345 62 349" stroke-width="0.7"/>
+        <path d="M106 335 Q82 316 52 322" stroke-width="1.4"/><path d="M84 320 Q76 309 64 314" stroke-width="0.8"/><path d="M74 315 Q68 304 58 309" stroke-width="0.8"/><path d="M64 311 Q60 300 52 305" stroke-width="0.7"/>
+        <path d="M103 298 Q76 277 44 284" stroke-width="1.3"/><path d="M78 282 Q70 270 58 275" stroke-width="0.8"/><path d="M66 277 Q60 265 50 270" stroke-width="0.7"/>
+        <path d="M100 260 Q70 237 36 244" stroke-width="1.3"/><path d="M72 243 Q63 230 50 236" stroke-width="0.7"/><path d="M60 238 Q54 225 44 230" stroke-width="0.7"/>
+        <path d="M97 222 Q64 196 28 204" stroke-width="1.2"/><path d="M66 203 Q56 189 42 195" stroke-width="0.7"/>
+        <path d="M94 183 Q58 156 20 164" stroke-width="1.1"/>
+        <path d="M91 145 Q53 116 14 124" stroke-width="1.0"/>
+        <path d="M88 108 Q50 80 12 88" stroke-width="0.9"/>
+        <path d="M84 74 Q50 48 18 55" stroke-width="0.8"/>
+        <path d="M108 370 Q128 355 152 360" stroke-width="1.4"/><path d="M128 362 Q136 352 146 356" stroke-width="0.8"/><path d="M136 358 Q142 348 150 352" stroke-width="0.8"/>
+        <path d="M106 335 Q128 316 158 322" stroke-width="1.4"/><path d="M128 320 Q136 309 148 314" stroke-width="0.8"/><path d="M138 315 Q144 304 154 309" stroke-width="0.7"/>
+        <path d="M103 298 Q128 277 160 283" stroke-width="1.3"/><path d="M128 282 Q136 270 148 275" stroke-width="0.7"/>
+        <path d="M100 260 Q128 237 162 243" stroke-width="1.2"/>
+        <path d="M97 222 Q128 197 164 203" stroke-width="1.1"/>
+        <path d="M94 183 Q128 157 166 163" stroke-width="1.0"/>
+        <path d="M91 145 Q126 118 164 124" stroke-width="0.9"/>
+        <path d="M88 108 Q122 82 160 88" stroke-width="0.8"/>
+      </g>
+    </svg>
+    <svg class="fern-shadow fs2" width="150" height="350" viewBox="0 0 150 350" fill="none" style="position:absolute;right:50px;bottom:-5px">
+      <g opacity="0.14" stroke="#2a2a22" fill="none">
+        <path d="M80 350 Q78 295 75 235 Q72 175 68 115 Q64 65 58 15" stroke-width="1.8"/>
+        <path d="M77 308 Q60 294 36 299" stroke-width="1.2"/><path d="M60 297 Q53 285 42 290" stroke-width="0.7"/><path d="M50 292 Q45 280 37 285" stroke-width="0.6"/>
+        <path d="M75 273 Q56 257 30 262" stroke-width="1.2"/><path d="M57 260 Q49 248 37 253" stroke-width="0.7"/>
+        <path d="M72 236 Q50 218 22 224" stroke-width="1.1"/>
+        <path d="M69 198 Q44 179 14 185" stroke-width="1.0"/>
+        <path d="M66 160 Q40 140 8 147" stroke-width="0.9"/>
+        <path d="M63 122 Q38 103 8 109" stroke-width="0.8"/>
+        <path d="M77 308 Q96 294 118 299" stroke-width="1.2"/><path d="M96 297 Q104 285 114 290" stroke-width="0.7"/>
+        <path d="M75 273 Q96 257 122 262" stroke-width="1.2"/>
+        <path d="M72 236 Q96 218 126 223" stroke-width="1.1"/>
+        <path d="M69 198 Q96 179 128 185" stroke-width="1.0"/>
+        <path d="M66 160 Q96 141 130 147" stroke-width="0.9"/>
+      </g>
+    </svg>
+    <svg class="fern-shadow fs3" width="130" height="300" viewBox="0 0 130 300" fill="none" style="position:absolute;left:-20px;bottom:-5px">
+      <g opacity="0.11" stroke="#2a2a22" fill="none">
+        <path d="M65 300 Q63 248 61 192 Q59 140 56 88 Q53 48 48 10" stroke-width="1.6"/>
+        <path d="M62 262 Q46 248 24 253" stroke-width="1.1"/><path d="M46 251 Q39 240 28 245" stroke-width="0.6"/>
+        <path d="M60 230 Q42 215 18 220" stroke-width="1.0"/>
+        <path d="M57 196 Q37 180 12 185" stroke-width="1.0"/>
+        <path d="M54 162 Q32 145 6 151" stroke-width="0.9"/>
+        <path d="M51 128 Q28 111 2 117" stroke-width="0.8"/>
+        <path d="M62 262 Q78 248 100 253" stroke-width="1.1"/>
+        <path d="M60 230 Q80 215 106 220" stroke-width="1.0"/>
+        <path d="M57 196 Q80 181 108 186" stroke-width="1.0"/>
+        <path d="M54 162 Q78 146 108 151" stroke-width="0.9"/>
+      </g>
+    </svg>
+    <div class="light-panel"></div>
+  </div>
 
   <div class="header">
     <div class="header-logo">WB <span>Consultores</span></div>
@@ -416,14 +482,54 @@ Señal especial: si el participante describe maltrato o acoso como algo normal �
 
 REGLAS DE CONDUCCIÓN:
 1. UNA sola pregunta por turno — nunca dos seguidas.
-2. NUNCA repitas una pregunta que ya hiciste. Si necesitas más contexto de un tema, busca un ángulo distinto o una metáfora nueva.
-3. MÁXIMO 3 preguntas seguidas sobre el mismo subtema — luego avanza a otro aunque no tengas toda la información.
-4. RATIFICACIÓN inteligente: si la respuesta fue ambigua o muy corta, usa [RATIFICA: "lo que entendiste en tus propias palabras"] — solo cuando sea necesario, no en cada turno.
-5. FORMATO de opciones cuando uses rating o selección: [OPCIONES: opción1 | opción2 | opción3 | opción4]
-6. LENGUAJE: español formal y neutro, cálido pero profesional. Oraciones cortas. Sin tecnicismos sin explicación.
-7. Nunca menciones "las 7 dimensiones", "el diagnóstico", "Whiteboard Consultores", "MBI", "McKinsey" ni ningún término técnico del sistema.
-8. Las etiquetas internas [ALERTA-CRITICA], [BURNOUT-ACTIVO], [RIESGO-TALENTO-CLAVE], [NORMALIZACION-TOXICA] van al FINAL de tu mensaje si aplican — el participante no las ve, son para el sistema de análisis.
-9. RESPONDE ÚNICAMENTE con el mensaje para el participante + etiquetas internas si aplican. Nada más.`;
+2. NUNCA repitas una pregunta que ya hiciste. Si necesitas más contexto busca un ángulo completamente distinto.
+3. LÍMITE DURO POR DIMENSIÓN: máximo 2 preguntas consecutivas sobre el mismo subtema. Después de 2 respuestas sobre un tema, DEBES avanzar a otro aunque no tengas toda la información. Las alertas no justifican ciclar — registra la alerta y sigue adelante.
+4. MAPA ESTRICTO DE DIMENSIONES — LÍMITES IRROMPIBLES:
+
+   D1 LIDERAZGO: preguntas 1 a 10 (máximo 10 preguntas)
+   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
+   → Máximo 2 preguntas seguidas sobre el mismo subtema
+   → Al llegar a pregunta 11, CIERRA D1 y abre D2 sin excepción
+
+   D2 CULTURA: preguntas 11 a 22 (máximo 12 preguntas)
+   → Mínimo 4 opciones múltiples/ratings obligatorios en este bloque
+   → Máximo 2 preguntas seguidas sobre el mismo subtema
+   → Al llegar a pregunta 23, CIERRA D2 y abre D3 sin excepción
+
+   D3 COMUNICACIÓN: preguntas 23 a 32 (máximo 10 preguntas)
+   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
+   → Máximo 2 preguntas seguidas sobre el mismo subtema
+   → Al llegar a pregunta 33, CIERRA D3 y abre D4 sin excepción
+
+   D4 BIENESTAR: preguntas 33 a 43 (máximo 11 preguntas)
+   → Mínimo 5 opciones múltiples/ratings MBI obligatorios en este bloque
+   → Máximo 2 preguntas seguidas sobre el mismo subtema
+   → Al llegar a pregunta 44, CIERRA D4 y abre D5 sin excepción
+
+   D5 OPERACIÓN: preguntas 44 a 53 (máximo 10 preguntas)
+   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
+   → Máximo 2 preguntas seguidas sobre el mismo subtema
+   → Al llegar a pregunta 54, CIERRA D5 y abre D6 sin excepción
+
+   D6 MOTIVACIÓN: preguntas 54 a 63 (máximo 10 preguntas)
+   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
+   → Máximo 2 preguntas seguidas sobre el mismo subtema
+   → Al llegar a pregunta 64, CIERRA D6 y abre D7 sin excepción
+
+   D7 CLIMA INTERPERSONAL: preguntas 64 a 75 (máximo 12 preguntas)
+   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
+   → Máximo 2 preguntas seguidas sobre el mismo subtema
+   → Al llegar a pregunta 75, CIERRA D7 y finaliza
+
+   REGLA ABSOLUTA: si ${preguntaNum} supera el límite de la dimensión actual, DEBES avanzar a la siguiente dimensión inmediatamente, sin importar qué tan interesante sea el tema actual. Las alertas se registran y se sigue adelante — NUNCA justifican quedarse en una dimensión más allá de su límite.
+
+5. ALERTAS CONTROLADAS: cuando detectes una alerta, haz EXACTAMENTE UNA pregunta de profundización, registra la etiqueta al final del mensaje y AVANZA a la siguiente pregunta de la misma dimensión o a la siguiente dimensión si ya se agotó el límite. NUNCA hagas más de 1 pregunta de profundización por alerta.
+6. RATIFICACIÓN: solo cuando la respuesta sea genuinamente ambigua. Máximo 1 ratificación por cada 5 preguntas.
+7. FORMATO opciones: [OPCIONES: opción1 | opción2 | opción3 | opción4]
+8. LENGUAJE: español formal y neutro, cálido pero profesional. Oraciones cortas. Sin tecnicismos sin explicación.
+9. Nunca menciones "las 7 dimensiones", "el diagnóstico", "Whiteboard Consultores", "MBI", "McKinsey" ni ningún término técnico.
+10. Las etiquetas [ALERTA-CRITICA], [BURNOUT-ACTIVO], [RIESGO-TALENTO-CLAVE], [NORMALIZACION-TOXICA] van al FINAL de tu mensaje si aplican.
+11. RESPONDE ÚNICAMENTE con el mensaje para el participante + etiquetas internas si aplican. Nada más.`;
 
   const ultimas = historial.slice(-10);
 
@@ -434,7 +540,7 @@ REGLAS DE CONDUCCIÓN:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model:      'claude-sonnet-4-5',
-        max_tokens: 600,
+        max_tokens: 1000,
         system:     systemPrompt,
         messages: [{ role: 'user', content: `Historial reciente:\n${ultimas.map(m => `${m.role === 'assistant' ? 'Alba' : participante.nombre}: ${m.content}`).join('\n\n')}\n\nGenera el siguiente turno del diagnóstico.` }]
       })
@@ -451,10 +557,13 @@ REGLAS DE CONDUCCIÓN:
         }
       }
     } else if (data && data.error) {
-      texto = 'Lo siento, hubo un problema técnico. Por favor intente de nuevo.';
-      console.error('Error API:', JSON.stringify(data.error));
+      texto = 'Error técnico: ' + (data.error.message || JSON.stringify(data.error));
+      console.error('Error API completo:', JSON.stringify(data));
+    } else {
+      console.error('Respuesta inesperada:', JSON.stringify(data));
+      texto = 'Error inesperado. Revisa la consola.';
     }
-    console.log('Respuesta recibida, longitud:', texto.length, 'primeros 100 chars:', texto.substring(0,100));
+    console.log('Texto final:', texto.substring(0,200));
 
     quitarTyping();
     procesarRespuestaIA(texto);
