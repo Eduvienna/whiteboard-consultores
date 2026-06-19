@@ -563,11 +563,7 @@ function mostrarAvisoRespuesta(mensaje) {
   const div  = document.createElement('div');
   div.className = 'msg ai';
   div.id = 'aviso-invalido';
-  div.innerHTML = \`
-    <div class="msg-avatar">WB</div>
-    <div class="msg-bubble" style="background:rgba(122,79,46,0.08);border-color:rgba(122,79,46,0.25);color:#7a4f2e;font-size:13px;">
-      \${mensaje}
-    </div>\`;
+  div.innerHTML = '<div class="msg-avatar">WB</div><div class="msg-bubble" style="background:rgba(122,79,46,0.08);color:#7a4f2e;font-size:13px;padding:10px 14px;">' + mensaje + '</div>';
   chat.appendChild(div);
   scrollChat();
   // Auto-eliminar el aviso después de 4 segundos
@@ -601,7 +597,7 @@ function agregarMensajeIA(texto, opciones, silencioso, ratifica) {
 
   if (opciones) {
     inner += `<div class="options-wrap">${opciones.map(o =>
-      `<button class="opt-btn" onclick="elegirOpcion(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`
+      "<button class=\"opt-btn\" onclick=\"elegirOpcion(this,&quot;" + o.replace(/"/g,"&quot;") + "&quot;)\">" + o + "</button>"
     ).join('')}</div>`;
   }
 
@@ -618,7 +614,7 @@ function agregarMensajeUsuario(texto, silencioso) {
     : 'YO';
   const div = document.createElement('div');
   div.className = 'msg user';
-  div.innerHTML = `<div class="msg-avatar">${iniciales}</div><div class="msg-bubble">${texto.replace(/\n/g,'<br>')}</div>`;
+  div.innerHTML = ["<div class=\"msg-avatar\">WB</div>", "<div class=\"msg-bubble\" style=\"background:rgba(122,79,46,0.08);border-color:rgba(122,79,46,0.25);color:#7a4f2e;font-size:13px;padding:10px 14px;\">", mensaje, "</div>"].join("");
   chat.appendChild(div);
   if (!silencioso) scrollChat();
 }
