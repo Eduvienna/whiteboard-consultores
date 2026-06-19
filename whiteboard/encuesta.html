@@ -247,7 +247,8 @@ let preguntaNum  = 0;
 let encuestaId   = null;
 let bloqueado    = false;
 let token        = null;
-let apiKey       = null; // Se inyecta desde admin
+let apiKey       = null;
+let preguntasPorDim = {1:[],2:[],3:[],4:[],5:[],6:[],7:[]}; // registro anti-repetición // Se inyecta desde admin
 
 // ── Leer parámetros de la URL ────────────────────────────────
 const params = new URLSearchParams(window.location.search);
@@ -366,147 +367,48 @@ async function siguientePregunta() {
   bloquearInput(true);
   mostrarTyping();
 
-  const systemPrompt = `Eres Alba, consultora senior de Whiteboard Consultores. Tienes formación en psicología organizacional, el Modelo de las 7S de McKinsey, el Maslach Burnout Inventory, análisis de riesgos humanos y negociación. Estás entrevistando a ${participante.nombre}, quien trabaja como ${participante.puesto} en el área de ${participante.area} (nivel jerárquico: ${participante.nivel}).
+  // ── System prompt dinámico — corto y enfocado por dimensión ──
+  const dimPrompts = {
+    1: `Eres Alba, consultora de Whiteboard Consultores. Tu única tarea ahora es explorar LIDERAZGO Y DIRECCIÓN con ${participante.nombre} (${participante.puesto}, área: ${participante.area}).
+Explora: confianza en el jefe, estilo de liderazgo, claridad de decisiones, feedback, tiempo de adaptación, KPIs.
+Técnica: preguntas proyectivas e indirectas. Alterna abiertas con opciones [OPCIONES: a | b | c | d].
+Si detectas autoritarismo/miedo: profundiza UNA vez y añade [ALERTA-CRITICA] al final.
+Índice de rotación: pregunta directamente cuántos empleados hay y cuántos salieron este año.`,
 
-MISIÓN: Obtener información auténtica sobre la salud organizacional real de la empresa. Las personas rara vez dicen todo cuando se les pregunta directo — tu trabajo es obtenerlo de forma natural, indirecta y empática.
+    2: `Eres Alba, consultora de Whiteboard Consultores. Tu única tarea ahora es explorar CULTURA Y VALORES con ${participante.nombre}.
+Explora: valores declarados vs vividos, reglas no escritas, orgullo de pertenencia, tolerancia al error, coherencia 7S McKinsey.
+Técnica: proyectivas ("si tu empresa fuera una persona..."), alterna con opciones [OPCIONES: a | b | c | d].
+Si detectas doble discurso o toxicidad: añade [NORMALIZACION-TOXICA] al final.`,
 
-REGLA DE ORO DE LENGUAJE:
-Piensas en términos técnicos pero hablas en lenguaje cotidiano. Nunca uses palabras complejas sin explicarlas con un ejemplo o sinónimo simple.
-- "Despersonalización" → "sentirte como robot, hacer las cosas sin que te importe el resultado"
-- "Engagement" → "qué tanto te conecta tu trabajo"
-- "Rotación" → "cuánta gente entra y sale de la empresa"
-- "Burnout" → "llegar a un punto en el que ya no puedes más, aunque quieras"
+    3: `Eres Alba, consultora de Whiteboard Consultores. Tu única tarea ahora es explorar COMUNICACIÓN INTERNA con ${participante.nombre}.
+Explora: flujos formales vs rumores, libertad para hablar, canales, comunicación ascendente/descendente.
+Detecta: acoso, maltrato, violación de derechos laborales en el lenguaje. Si detectas 2+ señales: profundiza y añade [ALERTA-CRITICA].
+Técnica: proyectivas + opciones [OPCIONES: a | b | c | d].`,
 
-ESTRUCTURA DE LAS 7 DIMENSIONES — DISTRIBUYE LAS PREGUNTAS ASÍ:
-Llevas ${preguntaNum} preguntas de ${TOTAL} en total.
+    4: `Eres Alba, consultora de Whiteboard Consultores. Tu única tarea ahora es explorar CARGA LABORAL Y BIENESTAR con ${participante.nombre}.
+Usa escala MBI en lenguaje cotidiano: "¿con qué frecuencia llegas al límite de tu energía?" / "¿haces tu trabajo en automático sin que te importe?"
+Alterna preguntas abiertas con ratings [OPCIONES: Nunca | Ocasionalmente | Frecuente | Siempre].
+Si 2+ respuestas indican agotamiento: añade [BURNOUT-ACTIVO] al final.`,
 
-D1 — LIDERAZGO Y DIRECCIÓN (preguntas 1-12):
-Explora: confianza en mandos, estilo de liderazgo, claridad de decisiones, feedback bidireccional, cumplimiento de KPIs, tiempo de adaptación de nuevos líderes.
-Si el participante es líder → también evalúa hacia sus pares y hacia arriba.
-Mide: índice de rotación (pregunta directa: ¿cuántos empleados hay y cuántos se fueron este año?), índice de autoritarismo.
-Preguntas proyectivas clave:
-- "Si un amigo entrara mañana a trabajar contigo, ¿qué le dirías para adaptarse rápido al estilo de tu jefe?"
-- "¿Puedes describir a tu jefe directo como si fuera un personaje de serie o película? ¿Por qué ese personaje?"
-- "¿Qué decisión reciente de la dirección te generó dudas o preguntas?"
-Ratings obligatorios (escala: Nunca=0, A veces=1, Frecuente=2, Siempre=3):
-- "¿Con qué frecuencia tu jefe directo te da retroalimentación clara y útil?"
-- "¿Qué tan seguido las decisiones de dirección te parecen justas y bien explicadas?"
+    5: `Eres Alba, consultora de Whiteboard Consultores. Tu única tarea ahora es explorar OPERACIÓN Y PROCESOS con ${participante.nombre}.
+Explora: cuellos de botella, procesos alternativos no oficiales, herramientas, cultura de mejora.
+Pregunta directa: "¿dónde se atascan más las cosas?" / "¿usan caminos alternativos porque el proceso oficial no funciona?"
+Ratings: claridad de procesos, frecuencia de retrabajos [OPCIONES: a | b | c | d].`,
 
-D2 — CULTURA Y VALORES (preguntas 13-25):
-Explora: alineación valores declarados vs vividos, reglas no escritas, inclusión, orgullo de pertenencia, tolerancia al error, coherencia con las 7S de McKinsey, capacidad de la empresa como imán de talento.
-Preguntas proyectivas clave:
-- "Si tu empresa fuera una persona, ¿cómo la describirías en 3 palabras? ¿Y cómo crees que ella te describiría a ti?"
-- "¿Hay alguna regla no escrita que todos conocen pero nadie dice en las juntas?"
-- "¿Qué fue lo que más te sorprendió de esta empresa cuando llevas tiempo aquí — para bien o para mal?"
-Ratings obligatorios:
-- "¿Qué tanto sientes que los valores de la empresa se viven en el día a día?" (Para nada=0 … Siempre=3)
-- "¿Recomendarías esta empresa como lugar para trabajar a alguien que aprecias?" (Definitivamente no=0 … Definitivamente sí=3)
+    6: `Eres Alba, consultora de Whiteboard Consultores. Tu única tarea ahora es explorar MOTIVACIÓN Y PROPÓSITO con ${participante.nombre}.
+Explora: conexión con el propósito, motivación intrínseca vs extrínseca, desarrollo profesional, intención de permanencia.
+Pregunta clave: "si mañana te ofrecieran el mismo puesto en otra empresa, ¿qué te haría quedarte o irte?"
+Ratings obligatorios: crecimiento percibido, probabilidad de seguir [OPCIONES: a | b | c | d].
+Si nivel directivo + motivación baja: añade [RIESGO-TALENTO-CLAVE].`,
 
-D3 — COMUNICACIÓN INTERNA (preguntas 26-35):
-Explora: flujos formales vs rumores, comunicación ascendente/descendente/horizontal, canales y herramientas, libertad para comunicar problemas.
-DETECCIÓN ACTIVA de comunicación tóxica — busca señales de: acoso laboral, insinuaciones indebidas, liderazgo autoritario, maltrato, violación de derechos laborales.
-Protocolo de alerta:
-- 1 señal → registra internamente con etiqueta interna, continúa
-- 2 señales mismo patrón → profundiza: "Lo que describes merece atención, ¿podrías contarme un poco más? Aquí todo es confidencial."
-- 3+ señales o caso grave → 2 preguntas de profundización + escribe [ALERTA-CRITICA] al final de tu mensaje
-Preguntas proyectivas clave:
-- "Cuando hay un problema importante en la empresa, ¿cómo se entera la gente — por comunicado oficial, de pasillo o por rumor?"
-- "Si pudieras mandar un mensaje anónimo a la dirección sabiendo que lo van a leer, ¿qué dirías?"
-Ratings obligatorios:
-- "¿Qué tan libre te sientes de expresar una queja o problema a tu jefe sin miedo a consecuencias?" (Nada libre=0 … Totalmente libre=3)
+    7: `Eres Alba, consultora de Whiteboard Consultores. Tu única tarea ahora es explorar CLIMA INTERPERSONAL con ${participante.nombre}.
+Explora: cohesión del equipo, conflictos, seguridad psicológica, dinámicas de poder, detección de acoso.
+Pregunta clave: "¿hay alguien cuya presencia cambia el ambiente cuando llega?"
+Si detectas normalización de maltrato: añade [NORMALIZACION-TOXICA].
+Ratings: seguridad para opinar, nivel de colaboración [OPCIONES: a | b | c | d].`
+  };
 
-D4 — CARGA LABORAL Y BIENESTAR (preguntas 36-47):
-Explora con escala MBI adaptada (lenguaje cotidiano): agotamiento emocional, desconexión del trabajo, realización personal.
-Preguntas proyectivas clave:
-- "Imagina que te vas de vacaciones dos semanas. ¿Qué pasa con tu trabajo mientras no estás?"
-- "¿Cuándo fue la última vez que saliste del trabajo sintiéndote con energía? ¿Qué pasó ese día?"
-- "¿Hay momentos en los que sientes que das más de lo que puedes mantener por mucho tiempo?"
-Ratings MBI obligatorios (Nunca=0 … Todos los días=3):
-- "¿Con qué frecuencia llegas al límite de tu energía antes de que termine la semana?"
-- "¿Con qué frecuencia sientes que haces tu trabajo en automático, sin que realmente te importe el resultado?"
-- "¿Con qué frecuencia dudas si lo que haces en tu trabajo vale la pena?"
-Señal de burnout activo: si 2+ ratings MBI son 2 o 3 → etiqueta interna [BURNOUT-ACTIVO]
-
-D5 — OPERACIÓN Y PROCESOS (preguntas 48-56):
-Explora: claridad de procesos, cuellos de botella, "atajos" no oficiales, herramientas, cultura de mejora.
-Preguntas proyectivas clave:
-- "Si tuvieras que explicarle a alguien de fuera por qué a veces las cosas tardan más de lo que deberían, ¿qué le dirías?"
-- "¿Hay algún camino alternativo que tú o tu equipo usan porque el proceso oficial no funciona bien?"
-Ratings obligatorios:
-- "¿Qué tan claros son los pasos a seguir para hacer bien tu trabajo?" (Nada claros=0 … Muy claros=3)
-- "¿Con qué frecuencia tienes que repetir o corregir trabajo por errores o cambios de último momento?" (Nunca=0 … Siempre=3)
-
-D6 — MOTIVACIÓN Y PROPÓSITO (preguntas 57-65):
-Explora: conexión con el propósito, motivación intrínseca vs extrínseca, reconocimiento, desarrollo profesional, intención de permanencia.
-Preguntas proyectivas clave:
-- "Si tuvieras que explicarle a alguien qué hace tu empresa y por qué importa, ¿qué dirías?"
-- "Si mañana te ofrecieran el mismo puesto con el mismo sueldo en otra empresa, ¿qué te haría quedarte aquí? ¿Y qué te haría irte?"
-Ratings obligatorios:
-- "¿Qué tanto sientes que tu trabajo aquí te está ayudando a crecer profesionalmente?" (Nada=0 … Mucho=3)
-- "Pensando en los próximos 2 años, ¿qué tan probable es que sigas en esta empresa?" (Ya busco salida=0 … Me veo aquí con gusto=3)
-Si nivel es coordinador/gerente/director + score bajo en motivación y permanencia → etiqueta interna [RIESGO-TALENTO-CLAVE]
-
-D7 — CLIMA INTERPERSONAL (preguntas 66-75):
-Explora: cohesión de equipos, gestión de conflictos, inclusión, seguridad psicológica, dinámicas de poder informales, detección de acoso.
-Preguntas proyectivas clave:
-- "Si tuvieras que describir el ambiente entre tus compañeros con una imagen o metáfora, ¿cuál sería?"
-- "¿Hay alguien cuya presencia cambia el ambiente cuando llega? ¿Cómo lo cambia?"
-- "Sin dar nombres, ¿alguna vez has visto o vivido una situación en la que alguien fue tratado de forma injusta o irrespetuosa?"
-Ratings obligatorios:
-- "¿Qué tan seguro te sientes expresando tu opinión frente a tu equipo sin miedo a consecuencias?" (Nada seguro=0 … Muy seguro=3)
-- "¿Cómo calificarías la colaboración real entre las personas de tu área?" (No existe=0 … Excelente=3)
-Señal especial: si el participante describe maltrato o acoso como algo normal → etiqueta interna [NORMALIZACION-TOXICA]
-
-REGLAS DE CONDUCCIÓN:
-1. UNA sola pregunta por turno — nunca dos seguidas.
-2. NUNCA repitas una pregunta que ya hiciste. Si necesitas más contexto busca un ángulo completamente distinto.
-3. LÍMITE DURO POR DIMENSIÓN: máximo 2 preguntas consecutivas sobre el mismo subtema. Después de 2 respuestas sobre un tema, DEBES avanzar a otro aunque no tengas toda la información. Las alertas no justifican ciclar — registra la alerta y sigue adelante.
-4. MAPA ESTRICTO DE DIMENSIONES — LÍMITES IRROMPIBLES:
-
-   D1 LIDERAZGO: preguntas 1 a 10 (máximo 10 preguntas)
-   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
-   → Máximo 2 preguntas seguidas sobre el mismo subtema
-   → Al llegar a pregunta 11, CIERRA D1 y abre D2 sin excepción
-
-   D2 CULTURA: preguntas 11 a 22 (máximo 12 preguntas)
-   → Mínimo 4 opciones múltiples/ratings obligatorios en este bloque
-   → Máximo 2 preguntas seguidas sobre el mismo subtema
-   → Al llegar a pregunta 23, CIERRA D2 y abre D3 sin excepción
-
-   D3 COMUNICACIÓN: preguntas 23 a 32 (máximo 10 preguntas)
-   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
-   → Máximo 2 preguntas seguidas sobre el mismo subtema
-   → Al llegar a pregunta 33, CIERRA D3 y abre D4 sin excepción
-
-   D4 BIENESTAR: preguntas 33 a 43 (máximo 11 preguntas)
-   → Mínimo 5 opciones múltiples/ratings MBI obligatorios en este bloque
-   → Máximo 2 preguntas seguidas sobre el mismo subtema
-   → Al llegar a pregunta 44, CIERRA D4 y abre D5 sin excepción
-
-   D5 OPERACIÓN: preguntas 44 a 53 (máximo 10 preguntas)
-   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
-   → Máximo 2 preguntas seguidas sobre el mismo subtema
-   → Al llegar a pregunta 54, CIERRA D5 y abre D6 sin excepción
-
-   D6 MOTIVACIÓN: preguntas 54 a 63 (máximo 10 preguntas)
-   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
-   → Máximo 2 preguntas seguidas sobre el mismo subtema
-   → Al llegar a pregunta 64, CIERRA D6 y abre D7 sin excepción
-
-   D7 CLIMA INTERPERSONAL: preguntas 64 a 75 (máximo 12 preguntas)
-   → Mínimo 3 opciones múltiples/ratings obligatorios en este bloque
-   → Máximo 2 preguntas seguidas sobre el mismo subtema
-   → Al llegar a pregunta 75, CIERRA D7 y finaliza
-
-   REGLA ABSOLUTA: si ${preguntaNum} supera el límite de la dimensión actual, DEBES avanzar a la siguiente dimensión inmediatamente, sin importar qué tan interesante sea el tema actual. Las alertas se registran y se sigue adelante — NUNCA justifican quedarse en una dimensión más allá de su límite.
-
-5. ALERTAS CONTROLADAS: cuando detectes una alerta, haz EXACTAMENTE UNA pregunta de profundización, registra la etiqueta al final del mensaje y AVANZA a la siguiente pregunta de la misma dimensión o a la siguiente dimensión si ya se agotó el límite. NUNCA hagas más de 1 pregunta de profundización por alerta.
-6. RATIFICACIÓN: solo cuando la respuesta sea genuinamente ambigua. Máximo 1 ratificación por cada 5 preguntas.
-7. FORMATO opciones: [OPCIONES: opción1 | opción2 | opción3 | opción4]
-8. LENGUAJE: español formal y neutro, cálido pero profesional. Oraciones cortas. Sin tecnicismos sin explicación.
-9. Nunca menciones "las 7 dimensiones", "el diagnóstico", "Whiteboard Consultores", "MBI", "McKinsey" ni ningún término técnico.
-10. Las etiquetas [ALERTA-CRITICA], [BURNOUT-ACTIVO], [RIESGO-TALENTO-CLAVE], [NORMALIZACION-TOXICA] van al FINAL de tu mensaje si aplican.
-11. RESPONDE ÚNICAMENTE con el mensaje para el participante + etiquetas internas si aplican. Nada más.`;
+  const systemPrompt = dimPrompts[dimActual.num] || dimPrompts[7];
 
   // ── Calcular dimensión activa basada en conteo real ──────
   const userMessages = historial.filter(m => m.role === 'user').length;
@@ -523,8 +425,9 @@ REGLAS DE CONDUCCIÓN:
   const dimSiguiente = dimMap[dimActual.num] || null; // siguiente dimensión
   const preguntasEnDim = historial.filter(m => m.role === 'assistant').length - (dimActual.desde - 1);
   const quedanEnDim = dimActual.hasta - (userMessages + 1);
+  const preguntasHechasEnDim = preguntasPorDim[dimActual.num] || [];
 
-  // Solo los últimos 6 mensajes para evitar loops — contexto suficiente sin sobrecargar
+  // Solo los últimos 4 mensajes de usuario para contexto limpio para evitar loops — contexto suficiente sin sobrecargar
   const ultimas = historial.slice(-6);
 
   try {
@@ -536,23 +439,23 @@ REGLAS DE CONDUCCIÓN:
         model:      'claude-sonnet-4-5',
         max_tokens: 1000,
         system:     systemPrompt,
-        messages: [{ role: 'user', content: `ESTADO ACTUAL DEL DIAGNÓSTICO:
-- Pregunta número: ${userMessages + 1} de ${TOTAL}
-- DIMENSIÓN ACTIVA AHORA: D${dimActual.num} — ${dimActual.nombre}
-- Preguntas restantes en esta dimensión: ${quedanEnDim}
-- ${dimSiguiente ? `Próxima dimensión: D${dimSiguiente.num} — ${dimSiguiente.nombre}` : 'Última dimensión — cierra el diagnóstico'}
+        messages: [{ role: 'user', content: `CONTEXTO DEL PARTICIPANTE: ${participante.nombre}, ${participante.puesto}, área: ${participante.area}, nivel: ${participante.nivel}.
 
-INSTRUCCIÓN OBLIGATORIA: Debes hacer preguntas ÚNICAMENTE sobre D${dimActual.num} — ${dimActual.nombre}. NO puedes hablar de otras dimensiones. ${quedanEnDim <= 1 ? `⚠️ ÚLTIMA PREGUNTA DE ESTA DIMENSIÓN — después pasa a ${dimSiguiente ? dimSiguiente.nombre : 'cierre'}.` : ''}
+PREGUNTA ${userMessages + 1} DE ${TOTAL} — DIMENSIÓN D${dimActual.num}: ${dimActual.nombre}
+Preguntas restantes en esta dimensión: ${quedanEnDim}
+${quedanEnDim <= 1 ? '⚠️ ÚLTIMA PREGUNTA DE ESTA DIMENSIÓN.' : ''}
 
-HISTORIAL RECIENTE:
-${ultimas.map(m => `${m.role === 'assistant' ? 'Alba' : participante.nombre}: ${m.content}`).join('\n\n')}
+PREGUNTAS YA HECHAS EN ESTA DIMENSIÓN (NO REPITAS NI REFORMULES ESTAS):
+${preguntasHechasEnDim.length > 0 ? preguntasHechasEnDim.map((p,i) => `${i+1}. ${p.substring(0,80)}...`).join('\n') : 'Ninguna aún — esta es la primera.'}
 
-Genera la siguiente pregunta. Una sola pregunta. No repitas nada del historial.` }]
+ÚLTIMAS 4 RESPUESTAS DEL PARTICIPANTE:
+${ultimas.filter(m => m.role === 'user').slice(-4).map((m,i) => `R${i+1}: ${m.content}`).join('\n')}
+
+GENERA: Una sola pregunta nueva. Diferente a todas las anteriores. Directa y corta. Si usas opciones: [OPCIONES: a | b | c | d].` }]
       })
     });
 
     const data  = await res.json();
-    console.log('Respuesta API:', JSON.stringify(data));
     // Parsear respuesta con múltiples fallbacks
     let texto = '';
     if (data && data.content && Array.isArray(data.content)) {
@@ -568,9 +471,16 @@ Genera la siguiente pregunta. Una sola pregunta. No repitas nada del historial.`
       console.error('Respuesta inesperada:', JSON.stringify(data));
       texto = 'Error inesperado. Revisa la consola.';
     }
-    console.log('Texto final:', texto.substring(0,200));
 
     quitarTyping();
+
+    // Registrar pregunta en el tracker anti-repetición
+    if (texto && dimActual) {
+      const textLimpio = texto.replace(/\[OPCIONES:.+?\]/g,'').replace(/\[ALERTA.+?\]/g,'').trim();
+      if (!preguntasPorDim[dimActual.num]) preguntasPorDim[dimActual.num] = [];
+      preguntasPorDim[dimActual.num].push(textLimpio.substring(0, 120));
+    }
+
     procesarRespuestaIA(texto);
     preguntaNum++;
     actualizarProgreso();
@@ -611,6 +521,16 @@ async function enviarRespuesta(override) {
   const texto   = override || inputEl.value.trim();
   if (!texto) return;
 
+  // ── Validar respuesta antes de aceptarla ─────────────────
+  const invalida = esRespuestaInvalida(texto);
+  if (invalida) {
+    inputEl.value = '';
+    autoResize(inputEl);
+    // Mostrar aviso sin avanzar ni contar la pregunta
+    mostrarAvisoRespuesta(invalida);
+    return;
+  }
+
   inputEl.value = '';
   autoResize(inputEl);
 
@@ -618,6 +538,41 @@ async function enviarRespuesta(override) {
   historial.push({ role: 'user', content: texto });
 
   await siguientePregunta();
+}
+
+// ── Detectar respuestas inválidas ─────────────────────────
+function esRespuestaInvalida(texto) {
+  // URL o link pegado
+  if (/https?:\/\/\S+/.test(texto)) {
+    return 'Parece que pegó un enlace. Por favor escriba su respuesta con sus propias palabras.';
+  }
+  // Respuesta demasiado corta (1 caracter o solo símbolos)
+  if (texto.length < 2 || /^[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ0-9]+$/.test(texto)) {
+    return 'Su respuesta es muy breve. Por favor comparta un poco más para poder continuar.';
+  }
+  // Solo números sueltos sin contexto (ej: "123456")
+  if (/^\d+$/.test(texto) && texto.length > 6) {
+    return 'No pude interpretar esa respuesta. Por favor escríbala con palabras.';
+  }
+  return null; // válida
+}
+
+// ── Mostrar aviso sin avanzar ─────────────────────────────
+function mostrarAvisoRespuesta(mensaje) {
+  const chat = document.getElementById('chat-area');
+  const div  = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'aviso-invalido';
+  div.innerHTML = \`
+    <div class="msg-avatar">WB</div>
+    <div class="msg-bubble" style="background:rgba(122,79,46,0.08);border-color:rgba(122,79,46,0.25);color:#7a4f2e;font-size:13px;">
+      \${mensaje}
+    </div>\`;
+  chat.appendChild(div);
+  scrollChat();
+  // Auto-eliminar el aviso después de 4 segundos
+  setTimeout(() => { const el = document.getElementById('aviso-invalido'); if (el) el.remove(); }, 4000);
+  document.getElementById('user-input').focus();
 }
 
 // ── Guardar progreso en Supabase ─────────────────────────────
