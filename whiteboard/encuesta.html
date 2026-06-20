@@ -408,8 +408,6 @@ Si detectas normalización de maltrato: añade [NORMALIZACION-TOXICA].
 Ratings: seguridad para opinar, nivel de colaboración [OPCIONES: a | b | c | d].`
   };
 
-  const systemPrompt = dimPrompts[dimActual.num] || dimPrompts[7];
-
   // ── Calcular dimensión activa basada en conteo real ──────
   const userMessages = historial.filter(m => m.role === 'user').length;
   const dimMap = [
@@ -426,6 +424,9 @@ Ratings: seguridad para opinar, nivel de colaboración [OPCIONES: a | b | c | d]
   const preguntasEnDim = historial.filter(m => m.role === 'assistant').length - (dimActual.desde - 1);
   const quedanEnDim = dimActual.hasta - (userMessages + 1);
   const preguntasHechasEnDim = preguntasPorDim[dimActual.num] || [];
+
+  // System prompt dinámico — se construye DESPUÉS de calcular dimActual
+  const systemPrompt = dimPrompts[dimActual.num] || dimPrompts[7];
 
   // Solo los últimos 4 mensajes de usuario para contexto limpio para evitar loops — contexto suficiente sin sobrecargar
   const ultimas = historial.slice(-6);
